@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/exo1.dir/src/exercise1/main.cpp.o CMakeFiles/exo1.dir/src/exercise1/Exercise1.cpp.o CMakeFiles/exo1.dir/utils/chronoCPU.cpp.o CMakeFiles/exo1.dir/student/exo1/student.cpp.o  -o exo1  -lpthread 

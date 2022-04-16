@@ -1,0 +1,1 @@
+/usr/bin/c++   -march=native -fomit-frame-pointer -O3 -Wno-ignored-attributes -mno-vzeroupper -fno-tree-vectorize -O3 -DNDEBUG   CMakeFiles/exo5.dir/src/exercise5/main.cpp.o CMakeFiles/exo5.dir/src/exercise5/ExerciseImpl.cpp.o CMakeFiles/exo5.dir/utils/chronoCPU.cpp.o CMakeFiles/exo5.dir/utils/OPP.cpp.o CMakeFiles/exo5.dir/student/exo5/student.cpp.o  -o exo5  -ltbb -lpthread 

@@ -1,0 +1,130 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../src/exercise2/ExerciseImpl.h
+Exercise.h
+-
+exo2/student.h
+-
+vector
+-
+
+../student/exo2/student.h
+StudentWork.h
+-
+vector
+-
+
+../utils/Exercise.h
+iostream
+-
+string
+-
+helper_string.h
+-
+chronoCPU.hpp
+-
+StudentWork.h
+-
+
+../utils/OPP.h
+thread
+-
+condition_variable
+-
+iterator
+-
+functional
+-
+vector
+-
+queue
+-
+mutex
+-
+future
+-
+algorithm
+-
+optional
+-
+
+../utils/StudentWork.h
+
+../utils/chronoCPU.hpp
+chrono
+-
+
+../utils/helper_string.h
+stdio.h
+-
+stdlib.h
+-
+fstream
+-
+string
+-
+string.h
+-
+strings.h
+-
+
+/mnt/c/Users/sauze/OneDrive - Université de Poitiers/Documents/2021-2022_M1_IM_S8/APR/TP5/src/exercise2/ExerciseImpl.cpp
+cmath
+-
+iostream
+-
+cstdlib
+-
+random
+-
+algorithm
+-
+ExerciseImpl.h
+/mnt/c/Users/sauze/OneDrive - Université de Poitiers/Documents/2021-2022_M1_IM_S8/APR/TP5/src/exercise2/ExerciseImpl.h
+OPP.h
+/mnt/c/Users/sauze/OneDrive - Université de Poitiers/Documents/2021-2022_M1_IM_S8/APR/TP5/src/exercise2/OPP.h
+
+/mnt/c/Users/sauze/OneDrive - Université de Poitiers/Documents/2021-2022_M1_IM_S8/APR/TP5/src/exercise2/ExerciseImpl.h
+Exercise.h
+-
+exo2/student.h
+-
+vector
+-
+
+/mnt/c/Users/sauze/OneDrive - Université de Poitiers/Documents/2021-2022_M1_IM_S8/APR/TP5/src/exercise2/main.cpp
+iostream
+-
+exercise2/ExerciseImpl.h
+-
+
+/mnt/c/Users/sauze/OneDrive - Université de Poitiers/Documents/2021-2022_M1_IM_S8/APR/TP5/student/exo2/student.cpp
+exo2/student.h
+-
+algorithm
+-
+functional
+-
+iostream
+-
+
+/mnt/c/Users/sauze/OneDrive - Université de Poitiers/Documents/2021-2022_M1_IM_S8/APR/TP5/utils/OPP.cpp
+OPP.h
+-
+
+/mnt/c/Users/sauze/OneDrive - Université de Poitiers/Documents/2021-2022_M1_IM_S8/APR/TP5/utils/chronoCPU.cpp
+chronoCPU.hpp
+/mnt/c/Users/sauze/OneDrive - Université de Poitiers/Documents/2021-2022_M1_IM_S8/APR/TP5/utils/chronoCPU.hpp
+iostream
+-
+
+/mnt/c/Users/sauze/OneDrive - Université de Poitiers/Documents/2021-2022_M1_IM_S8/APR/TP5/utils/chronoCPU.hpp
+chrono
+-
+

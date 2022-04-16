@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/exo4.dir/src/exercise4/main.cpp.o CMakeFiles/exo4.dir/src/exercise4/Exercise4.cpp.o CMakeFiles/exo4.dir/utils/chronoCPU.cpp.o CMakeFiles/exo4.dir/student/exo4/student.cpp.o  -o exo4  -lpthread 

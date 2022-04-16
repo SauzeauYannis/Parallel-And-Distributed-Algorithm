@@ -1,0 +1,1 @@
+/usr/bin/c++    -I./src -I./student -I./utils -march=native -mavx2 -fomit-frame-pointer -O3 -Wno-ignored-attributes -mno-vzeroupper -std=c++17 -fno-tree-vectorize -fopenmp    -rdynamic CMakeFiles/exo4.dir/src/exercise4/main.cpp.o CMakeFiles/exo4.dir/src/exercise4/ExerciseImpl.cpp.o CMakeFiles/exo4.dir/utils/chronoCPU.cpp.o CMakeFiles/exo4.dir/student/exo4/student.cpp.o  -o exo4 

@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../student/exo2/student.h
+StudentWork.h
+-
+immintrin.h
+-
+vector
+-
+
+../utils/StudentWork.h
+
+/mnt/c/Users/sauze/OneDrive - Université de Poitiers/Documents/2021-2022_M1_IM_S8/APR/TP2/student/exo2/student.cpp
+immintrin.h
+-
+cmath
+-
+iostream
+-
+exo2/student.h
+-
+
