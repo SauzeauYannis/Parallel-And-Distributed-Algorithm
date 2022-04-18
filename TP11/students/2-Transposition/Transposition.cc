@@ -106,8 +106,8 @@ void Transposition(const OPP::MPI::Torus& torus,
   // charger le bloc & le transposer
   std::shared_ptr<float> block(new float[bSize]);
   std::shared_ptr<float> transpose(new float[bSize]);
-  if (x ==
-      y)  // attention au cas de la diagonale ... il faut copier le résultat !
+  if (x == y)  // attention au cas de la diagonale ... il faut copier le
+                      // résultat !
     loadAndTranslate(transpose, A, width);
   else
     loadAndTranslate(block, A, width);
