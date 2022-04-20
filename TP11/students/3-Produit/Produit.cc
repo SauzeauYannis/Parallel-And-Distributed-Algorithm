@@ -53,15 +53,30 @@ void BroadcastCol(const OPP::MPI::Torus &torus, const int k, const int y,
   }
 }
 
-void ProduitSequentiel(float *A, float *B, DistributedBlockMatrix &C, int n) {
+void ProduitSequentiel(float *A, float *B, DistributedBlockMatrix &C, int r) {
   for (int row = C.Start(); row < C.End(); ++row) {
     for (int col = C[row].Start(); col < C[row].End(); ++col) {
       float dot = 0.0;
-      for (int k = 0; k < n; ++k)
-        dot += A[k + (row - C.Start()) * n] * B[(col - C[row].Start()) + k * n];
+      for (int k = 0; k < r; ++k)
+        dot += A[k + (row - C.Start()) * r] * B[(col - C[row].Start()) + k * r];
       C[row][col] += dot;
     }
   }
+}
+
+void init(const DistributedBlockMatrix &A, const DistributedBlockMatrix &B,
+          DistributedBlockMatrix &C, float *bufferA, float *bufferB,
+          const int r) {
+  for (int i = A.Start(); i < A.End(); ++i)
+    for (int j = A[i].Start(); j < A[i].End(); ++j)
+      bufferA[(j - A[i].Start()) + r * (i - A.Start())] = A[i][j];
+
+  for (int i = B.Start(); i < B.End(); ++i)
+    for (int j = B[i].Start(); j < B[i].End(); ++j)
+      bufferB[(j - B[i].Start()) + r * (i - B.Start())] = B[i][j];
+
+  for (int i = C.Start(); i < C.End(); ++i)
+    for (int j = C[i].Start(); j < C[i].End(); ++j) C[i][j] = 0.0f;
 }
 
 }  // namespace
@@ -71,35 +86,26 @@ void Produit(const OPP::MPI::Torus &torus, const DistributedBlockMatrix &A,
   const int n = sqrt(torus.getCommunicator().size);
   const int x = torus.getColumnRing().getRank();
   const int y = torus.getRowRing().getRank();
-  const int nb_rows = C.End() - C.Start();
-  const int L = nb_rows * (C[C.Start()].End() - C[C.Start()].Start());
+  const int r = C.End() - C.Start();
+  const int L = r * r;
 
   float *send_bufferA = new float[L];
   float *send_bufferB = new float[L];
 
-  for (int i = A.Start(); i < A.End(); ++i)
-    for (int j = A[i].Start(); j < A[i].End(); ++j)
-      send_bufferA[(j - A[i].Start()) + nb_rows * (i - A.Start())] = A[i][j];
-
-  for (int i = B.Start(); i < B.End(); ++i)
-    for (int j = B[i].Start(); j < B[i].End(); ++j)
-      send_bufferB[(j - B[i].Start()) + nb_rows * (i - B.Start())] = B[i][j];
-
-  for (int i = C.Start(); i < C.End(); ++i)
-    for (int j = C[i].Start(); j < C[i].End(); ++j) C[i][j] = 0.0f;
+  init(A, B, C, send_bufferA, send_bufferB, r);
 
   float *recv_bufferA = new float[L];
   float *recv_bufferB = new float[L];
   float *recv_bufferC = new float[L];
 
   for (int k = 0; k < n; ++k) {
-    BroadcastRow(torus, x, k, send_bufferA, recv_bufferA, L, nb_rows);
-    BroadcastCol(torus, k, y, send_bufferB, recv_bufferB, L, nb_rows);
+    BroadcastRow(torus, x, k, send_bufferA, recv_bufferA, L, r);
+    BroadcastCol(torus, k, y, send_bufferB, recv_bufferB, L, r);
 
     if (k == 0) {
-      ProduitSequentiel(send_bufferA, send_bufferB, C, nb_rows);
+      ProduitSequentiel(send_bufferA, send_bufferB, C, r);
     } else {
-      ProduitSequentiel(recv_bufferA, recv_bufferB, C, nb_rows);
+      ProduitSequentiel(recv_bufferA, recv_bufferB, C, r);
     }
   }
 }
