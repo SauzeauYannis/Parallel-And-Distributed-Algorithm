@@ -75,7 +75,4 @@ void Produit(const OPP::MPI::Torus &torus, const DistributedBlockMatrix &A,
     RotationHorizontale(torus, x, y, bufferA, L);
     RotationVerticale(torus, x, y, bufferB, L);
   }
-
-  RotationHorizontale(torus, x, y, bufferA, L);
-  RotationVerticale(torus, x, y, bufferB, L);
 }

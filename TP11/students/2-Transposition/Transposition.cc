@@ -5,6 +5,7 @@
 #include <thread>
 
 namespace {
+  
 // chargement et translation du bloc
 void loadAndTranslate(std::shared_ptr<float>& block,
                       const DistributedBlockMatrix& M, const unsigned width) {
