@@ -11,8 +11,11 @@ void BroadcastRow(const OPP::MPI::Torus &torus, const int x, const int k,
     using Direction = OPP::MPI::Torus::Direction;
 
     if (torus.getRowRing().getRank() == k) {
-      for (int i = 0; i < r; ++i)
+      for (int i = 0; i < r; ++i) {
         torus.Send(&src[i * L / r], L / r, MPI_FLOAT, Direction::EAST);
+        for (int j = 0; j < L / r; ++j)
+          dest[i * L / r + j] = src[i * L / r + j];
+      }
     } else if (torus.getRowRing().getNext() == k) {
       for (int i = 0; i < r; ++i)
         torus.Recv(&dest[i * L / r], L / r, MPI_FLOAT, Direction::WEST);
@@ -35,8 +38,11 @@ void BroadcastCol(const OPP::MPI::Torus &torus, const int k, const int y,
     using Direction = OPP::MPI::Torus::Direction;
 
     if (torus.getColumnRing().getRank() == k) {
-      for (int i = 0; i < r; ++i)
+      for (int i = 0; i < r; ++i) {
         torus.Send(&src[i * L / r], L / r, MPI_FLOAT, Direction::SOUTH);
+        for (int j = 0; j < L / r; ++j)
+          dest[i * L / r + j] = src[i * L / r + j];
+      }
     } else if (torus.getColumnRing().getNext() == k) {
       for (int i = 0; i < r; ++i)
         torus.Recv(&dest[i * L / r], L / r, MPI_FLOAT, Direction::NORTH);
@@ -102,10 +108,6 @@ void Produit(const OPP::MPI::Torus &torus, const DistributedBlockMatrix &A,
     BroadcastRow(torus, x, k, send_bufferA, recv_bufferA, L, r);
     BroadcastCol(torus, k, y, send_bufferB, recv_bufferB, L, r);
 
-    if (k == 0) {
-      ProduitSequentiel(send_bufferA, send_bufferB, C, r);
-    } else {
-      ProduitSequentiel(recv_bufferA, recv_bufferB, C, r);
-    }
+    ProduitSequentiel(send_bufferA, send_bufferB, C, r);
   }
 }
