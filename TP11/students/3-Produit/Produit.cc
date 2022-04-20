@@ -53,12 +53,13 @@ void BroadcastCol(const OPP::MPI::Torus &torus, const int k, const int y,
   }
 }
 
-void ProduitSequentiel(float *A, float *B, float *C, int n) {
-  for (int row = 0; row < n; ++row) {
-    for (int col = 0; col < n; col++) {
+void ProduitSequentiel(float *A, float *B, DistributedBlockMatrix &C, int n) {
+  for (int row = C.Start(); row < C.End(); ++row) {
+    for (int col = C[row].Start(); col < C[row].End(); ++col) {
       float dot = 0.0;
-      for (int k = 0; k < n; ++k) dot += A[k + row * n] * B[col + k * n];
-      C[col + row * n] = dot;
+      for (int k = 0; k < n; ++k)
+        dot += A[k + (row - C.Start()) * n] * B[(col - C[row].Start()) + k * n];
+      C[row][col] += dot;
     }
   }
 }
@@ -96,13 +97,9 @@ void Produit(const OPP::MPI::Torus &torus, const DistributedBlockMatrix &A,
     BroadcastCol(torus, k, y, send_bufferB, recv_bufferB, L, nb_rows);
 
     if (k == 0) {
-      ProduitSequentiel(send_bufferA, send_bufferB, recv_bufferC, nb_rows);
+      ProduitSequentiel(send_bufferA, send_bufferB, C, nb_rows);
     } else {
-      ProduitSequentiel(recv_bufferA, recv_bufferB, recv_bufferC, nb_rows);
+      ProduitSequentiel(recv_bufferA, recv_bufferB, C, nb_rows);
     }
-
-    for (int i = C.Start(); i < C.End(); ++i)
-      for (int j = C[i].Start(); j < C[i].End(); ++j)
-        C[i][j] += recv_bufferC[(j - C[i].Start()) + nb_rows * (i - C.Start())];
   }
 }
