@@ -27,7 +27,7 @@ void BroadcastRow(const OPP::MPI::Torus &torus, const int x, const int k,
         torus.Recv(&dest[(i + 1) * L / r], L / r, MPI_FLOAT, Direction::WEST);
         MPI_Wait(&request, MPI_STATUS_IGNORE);
       }
-      torus.Send(&dest[(r - 1) * L / r], L / r, MPI_FLOAT, Direction::EAST);
+      torus.Send(&src[(r - 1) * L / r], L / r, MPI_FLOAT, Direction::EAST);
     }
   }
 }
@@ -54,7 +54,7 @@ void BroadcastCol(const OPP::MPI::Torus &torus, const int k, const int y,
         torus.Recv(&dest[(i + 1) * L / r], L / r, MPI_FLOAT, Direction::NORTH);
         MPI_Wait(&request, MPI_STATUS_IGNORE);
       }
-      torus.Send(&dest[(r - 1) * L / r], L / r, MPI_FLOAT, Direction::SOUTH);
+      torus.Send(&src[(r - 1) * L / r], L / r, MPI_FLOAT, Direction::SOUTH);
     }
   }
 }
@@ -102,8 +102,7 @@ void Produit(const OPP::MPI::Torus &torus, const DistributedBlockMatrix &A,
 
   float *recv_bufferA = new float[L];
   float *recv_bufferB = new float[L];
-  float *recv_bufferC = new float[L];
-
+  
   for (int k = 0; k < n; ++k) {
     BroadcastRow(torus, x, k, send_bufferA, recv_bufferA, L, r);
     BroadcastCol(torus, k, y, send_bufferB, recv_bufferB, L, r);

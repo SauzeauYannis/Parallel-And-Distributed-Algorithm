@@ -28,19 +28,19 @@ void below2above(const OPP::MPI::Torus& torus, const int bSize,
   if (x < y) {
     torus.Send(block.get(), bSize, MPI_FLOAT, Direction::EAST);
 
-    for (int i = 0; i < x; i++) {
+    for (int i = 0; i < x; ++i) {
       torus.Recv(buffer.get(), bSize, MPI_FLOAT, Direction::WEST);
       torus.Send(buffer.get(), bSize, MPI_FLOAT, Direction::EAST);
     }
   } else if (x > y) {
     torus.Recv(transpose.get(), bSize, MPI_FLOAT, Direction::SOUTH);
 
-    for (int i = 0; i < y; i++) {
+    for (int i = 0; i < y; ++i) {
       torus.Send(buffer.get(), bSize, MPI_FLOAT, Direction::NORTH);
       torus.Recv(buffer.get(), bSize, MPI_FLOAT, Direction::SOUTH);
     }
   } else {
-    for (int i = 0; i < x; i++) {
+    for (int i = 0; i < x; ++i) {
       torus.Recv(buffer.get(), bSize, MPI_FLOAT, Direction::WEST);
       torus.Send(buffer.get(), bSize, MPI_FLOAT, Direction::NORTH);
     }
@@ -61,19 +61,19 @@ void above2below(const OPP::MPI::Torus& torus, const int bSize,
   if (x < y) {
     torus.Recv(transpose.get(), bSize, MPI_FLOAT, Direction::EAST);
 
-    for (int i = 0; i < x; i++) {
+    for (int i = 0; i < x; ++i) {
       torus.Recv(buffer.get(), bSize, MPI_FLOAT, Direction::EAST);
       torus.Send(buffer.get(), bSize, MPI_FLOAT, Direction::WEST);
     }
   } else if (x > y) {
     torus.Send(block.get(), bSize, MPI_FLOAT, Direction::SOUTH);
 
-    for (int i = 0; i < y; i++) {
+    for (int i = 0; i < y; ++i) {
       torus.Recv(buffer.get(), bSize, MPI_FLOAT, Direction::NORTH);
       torus.Send(buffer.get(), bSize, MPI_FLOAT, Direction::SOUTH);
     }
   } else {
-    for (int i = 0; i < x; i++) {
+    for (int i = 0; i < x; ++i) {
       torus.Recv(buffer.get(), bSize, MPI_FLOAT, Direction::NORTH);
       torus.Send(buffer.get(), bSize, MPI_FLOAT, Direction::WEST);
     }

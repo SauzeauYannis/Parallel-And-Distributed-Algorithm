@@ -7,21 +7,19 @@ namespace {
 
 void RotationHorizontale(const OPP::MPI::Torus &torus, const int x, const int y,
                          float *buffer, const int L) {
-  if (torus.getColumnRing().getRank() == x) {
-    if (torus.getRowRing().getRank() == y) {
-      torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::WEST);
-      torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::EAST);
-    }
+  if (torus.getColumnRing().getRank() == x &&
+      torus.getRowRing().getRank() == y) {
+    torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::WEST);
+    torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::EAST);
   }
 }
 
 void RotationVerticale(const OPP::MPI::Torus &torus, const int x, const int y,
                        float *buffer, const int L) {
-  if (torus.getRowRing().getRank() == y) {
-    if (torus.getColumnRing().getRank() == x) {
-      torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::NORTH);
-      torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::SOUTH);
-    }
+  if (torus.getRowRing().getRank() == y &&
+      torus.getColumnRing().getRank() == x) {
+    torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::NORTH);
+    torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::SOUTH);
   }
 }
 
