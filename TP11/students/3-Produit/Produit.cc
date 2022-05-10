@@ -1,8 +1,6 @@
 #include <3-Produit/Produit.h>
 #include <MPI/OPP_MPI.h>
 
-#include <memory>
-
 namespace {
 
 void BroadcastRow(const OPP::MPI::Torus &torus, const int x, const int k,
@@ -102,11 +100,16 @@ void Produit(const OPP::MPI::Torus &torus, const DistributedBlockMatrix &A,
 
   float *recv_bufferA = new float[L];
   float *recv_bufferB = new float[L];
-  
+
   for (int k = 0; k < n; ++k) {
     BroadcastRow(torus, x, k, send_bufferA, recv_bufferA, L, r);
     BroadcastCol(torus, k, y, send_bufferB, recv_bufferB, L, r);
 
     ProduitSequentiel(send_bufferA, send_bufferB, C, r);
   }
+
+  delete[] send_bufferA;
+  delete[] send_bufferB;
+  delete[] recv_bufferA;
+  delete[] recv_bufferB;
 }

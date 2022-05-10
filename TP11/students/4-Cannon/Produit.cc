@@ -1,26 +1,18 @@
 #include <4-Cannon/Produit.h>
 #include <DistributedBlockMatrix.h>
 
-#include <memory>
-
 namespace {
 
-void RotationHorizontale(const OPP::MPI::Torus &torus, const int x, const int y,
-                         float *buffer, const int L) {
-  if (torus.getColumnRing().getRank() == x &&
-      torus.getRowRing().getRank() == y) {
-    torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::WEST);
-    torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::EAST);
-  }
+void RotationHorizontale(const OPP::MPI::Torus &torus, float *buffer,
+                         const int L) {
+  torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::WEST);
+  torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::EAST);
 }
 
-void RotationVerticale(const OPP::MPI::Torus &torus, const int x, const int y,
-                       float *buffer, const int L) {
-  if (torus.getRowRing().getRank() == y &&
-      torus.getColumnRing().getRank() == x) {
-    torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::NORTH);
-    torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::SOUTH);
-  }
+void RotationVerticale(const OPP::MPI::Torus &torus, float *buffer,
+                       const int L) {
+  torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::NORTH);
+  torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::SOUTH);
 }
 
 void ProduitSequentiel(float *A, float *B, DistributedBlockMatrix &C, int r) {
@@ -54,8 +46,6 @@ void init(const DistributedBlockMatrix &A, const DistributedBlockMatrix &B,
 void Produit(const OPP::MPI::Torus &torus, const DistributedBlockMatrix &A,
              const DistributedBlockMatrix &B, DistributedBlockMatrix &C) {
   const int n = sqrt(torus.getCommunicator().size);
-  const int x = torus.getColumnRing().getRank();
-  const int y = torus.getRowRing().getRank();
   const int r = C.End() - C.Start();
   const int L = r * r;
 
@@ -64,13 +54,16 @@ void Produit(const OPP::MPI::Torus &torus, const DistributedBlockMatrix &A,
 
   init(A, B, C, bufferA, bufferB, r);
 
-  RotationHorizontale(torus, x, y, bufferA, L);
-  RotationVerticale(torus, x, y, bufferB, L);
+  RotationHorizontale(torus, bufferA, L);
+  RotationVerticale(torus, bufferB, L);
 
   for (int k = 0; k < n; ++k) {
     ProduitSequentiel(bufferA, bufferB, C, r);
 
-    RotationHorizontale(torus, x, y, bufferA, L);
-    RotationVerticale(torus, x, y, bufferB, L);
+    RotationHorizontale(torus, bufferA, L);
+    RotationVerticale(torus, bufferB, L);
   }
+
+  delete[] bufferA;
+  delete[] bufferB;
 }

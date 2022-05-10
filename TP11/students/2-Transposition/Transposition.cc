@@ -5,7 +5,7 @@
 #include <thread>
 
 namespace {
-  
+
 // chargement et translation du bloc
 void loadAndTranslate(std::shared_ptr<float>& block,
                       const DistributedBlockMatrix& M, const unsigned width) {
@@ -108,7 +108,7 @@ void Transposition(const OPP::MPI::Torus& torus,
   std::shared_ptr<float> block(new float[bSize]);
   std::shared_ptr<float> transpose(new float[bSize]);
   if (x == y)  // attention au cas de la diagonale ... il faut copier le
-                      // résultat !
+               // résultat !
     loadAndTranslate(transpose, A, width);
   else
     loadAndTranslate(block, A, width);

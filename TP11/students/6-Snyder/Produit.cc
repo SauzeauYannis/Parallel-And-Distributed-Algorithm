@@ -1,9 +1,6 @@
 #include <6-Snyder/Produit.h>
 #include <DistributedBlockMatrix.h>
 
-#include <memory>
-#include <thread>
-
 namespace {
 
 void transposition(const OPP::MPI::Torus &torus, float *buffer, const int L) {
@@ -51,6 +48,9 @@ void transposition(const OPP::MPI::Torus &torus, float *buffer, const int L) {
       torus.Send(buffer2, L, MPI_FLOAT, Direction::NORTH);
     }
   }
+
+  delete[] buffer1;
+  delete[] buffer2;
 }
 
 void BroadcastRowAdd(const OPP::MPI::Torus &torus, const int x, const int k,
@@ -63,28 +63,28 @@ void BroadcastRowAdd(const OPP::MPI::Torus &torus, const int x, const int k,
         torus.Send(&src[i * L / r], L / r, MPI_FLOAT, Direction::EAST);
       for (int i = 0; i < r; ++i)
         torus.Recv(&dest[i * L / r], L / r, MPI_FLOAT, Direction::WEST);
+      for (int i = 0; i < r; ++i)
+        for (int j = i * L / r; j < (i + 1) * L / r; ++j)
+          if (j != i * L / r + i) dest[i * L / r + i] += dest[j];
     } else {
       torus.Recv(dest, L / r, MPI_FLOAT, Direction::WEST);
       for (int i = 0; i < r - 1; ++i) {
-        src[i * L / r] += dest[i * L / r];
+        for (int j = i * L / r; j < (i + 1) * L / r; ++j) src[j] += dest[j];
         MPI_Request request =
             torus.AsyncSend(&src[i * L / r], L / r, MPI_FLOAT, Direction::EAST);
         torus.Recv(&dest[(i + 1) * L / r], L / r, MPI_FLOAT, Direction::WEST);
         MPI_Wait(&request, MPI_STATUS_IGNORE);
       }
-      src[(r - 1) * L / r] += dest[(r - 1) * L / r];
+      for (int j = (r - 1) * L / r; j < r * L / r; ++j) src[j] += dest[j];
       torus.Send(&src[(r - 1) * L / r], L / r, MPI_FLOAT, Direction::EAST);
     }
   }
 }
 
-void RotationVerticale(const OPP::MPI::Torus &torus, const int x, const int y,
-                       float *buffer, const int L) {
-  if (torus.getRowRing().getRank() == y &&
-      torus.getColumnRing().getRank() == x) {
-    torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::NORTH);
-    torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::SOUTH);
-  }
+void RotationVerticale(const OPP::MPI::Torus &torus, float *buffer,
+                       const int L) {
+  torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::NORTH);
+  torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::SOUTH);
 }
 
 void init(const DistributedBlockMatrix &A, const DistributedBlockMatrix &B,
@@ -124,20 +124,20 @@ void Produit(const OPP::MPI::Torus &torus, const DistributedBlockMatrix &A,
   for (int i = 0; i < L; ++i) send_bufferC[i] = bufferA[i] * bufferB[i];
 
   for (int k = 0; k < n; ++k) {
-    BroadcastRowAdd(torus, x, (x + k) % n, send_bufferC, recv_bufferC, L, r);
-    for (int i = C.Start(); i < C.End(); ++i)
-      for (int j = C[i].Start(); j < C[i].End(); ++j)
-        C[i][j] += recv_bufferC[(i - C.Start()) * r + (j - C[i].Start())];
+    int diag = (x + k) % n;
+    BroadcastRowAdd(torus, x, diag, send_bufferC, recv_bufferC, L, r);
+    if (diag == y)
+      for (int i = C.Start(); i < C.End(); ++i)
+        for (int j = C[i].Start(); j < C[i].End(); ++j)
+          C[i][j] = recv_bufferC[(i - C.Start()) * r + (j - C[i].Start())];
 
-    RotationVerticale(torus, x, y, bufferB, L);
+    RotationVerticale(torus, bufferB, L);
 
     for (int i = 0; i < L; ++i) send_bufferC[i] = bufferA[i] * bufferB[i];
   }
 
-  BroadcastRowAdd(torus, x, (x + n - 1) % n, send_bufferC, recv_bufferC, L, r);
-  for (int i = C.Start(); i < C.End(); ++i)
-    for (int j = C[i].Start(); j < C[i].End(); ++j)
-      C[i][j] += recv_bufferC[(i - C.Start()) * r + (j - C[i].Start())];
-
-  transposition(torus, bufferB, L);
+  delete[] bufferA;
+  delete[] bufferB;
+  delete[] send_bufferC;
+  delete[] recv_bufferC;
 }

@@ -1,8 +1,6 @@
 #include <5-Fox/Produit.h>
 #include <DistributedBlockMatrix.h>
 
-#include <memory>
-
 namespace {
 
 void BroadcastRow(const OPP::MPI::Torus &torus, const int x, const int k,
@@ -32,13 +30,10 @@ void BroadcastRow(const OPP::MPI::Torus &torus, const int x, const int k,
   }
 }
 
-void RotationVerticale(const OPP::MPI::Torus &torus, const int x, const int y,
-                       float *buffer, const int L) {
-  if (torus.getRowRing().getRank() == y &&
-      torus.getColumnRing().getRank() == x) {
-    torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::NORTH);
-    torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::SOUTH);
-  }
+void RotationVerticale(const OPP::MPI::Torus &torus, float *buffer,
+                       const int L) {
+  torus.Send(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::NORTH);
+  torus.Recv(buffer, L, MPI_FLOAT, OPP::MPI::Torus::Direction::SOUTH);
 }
 
 void ProduitSequentiel(float *A, float *B, DistributedBlockMatrix &C, int r) {
@@ -73,7 +68,6 @@ void Produit(const OPP::MPI::Torus &torus, const DistributedBlockMatrix &A,
              const DistributedBlockMatrix &B, DistributedBlockMatrix &C) {
   const int n = sqrt(torus.getCommunicator().size);
   const int x = torus.getColumnRing().getRank();
-  const int y = torus.getRowRing().getRank();
   const int r = C.End() - C.Start();
   const int L = r * r;
 
@@ -89,6 +83,10 @@ void Produit(const OPP::MPI::Torus &torus, const DistributedBlockMatrix &A,
 
     ProduitSequentiel(recv_bufferA, send_bufferB, C, r);
 
-    RotationVerticale(torus, x, y, send_bufferB, L);
+    RotationVerticale(torus, send_bufferB, L);
   }
+
+  delete[] send_bufferA;
+  delete[] send_bufferB;
+  delete[] recv_bufferA;
 }
